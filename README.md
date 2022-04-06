@@ -6,17 +6,17 @@ English and German. \
 One of the most common and simple approaches is TFIDF encodings with (1,5) N-Grams and Logistic Regression, which was implemented here 
 as a baseline. \
 Nevertheless, transformers are known to be very good at language understanding, so as a second approach 
-"bert-base-multilingual-cased" model was trained and compared to logreg one. \
+"bert-base-multilingual-cased" model was trained and compared to ngram one. \
 Repository contents: 
 ##### _root_
  - load_checkpoints.sh - bash file to download model weights from google drive (_gdown_ package should be installed)
 ##### _scripts folder_
 - initializer.py - some preparations for future work like dataset downloading, some parameter initializations.
 - metrics.py - class for metric computations (accuracy, f1).
-- ngram_model.py - class with logreg model (with which you can train, test your model and make sentence predictions).
+- ngram_model.py - class with logreg ngram model (with which you can train, test your model and make sentence predictions).
 - dataset.py - class for dataset preparation for Bert model.
 - bert_model.py - class with bert model (with which you can train, test your model and make sentence predictions).
-- train.py - script to train your model (logreg or Bert), the training configurations and model type are set in config.ini file.
+- train.py - script to train your model (logreg ngram or Bert), the training configurations and model type are set in config.ini file.
 - predict.py - with it you can get languages predictions (one or many) for an input sentence (from terminal).
 - Experiments.ipynb - jupyter notebook with experiments were you can train/test models (alternative to train.py/predict.py) 
 and see some visualization.

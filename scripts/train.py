@@ -1,4 +1,4 @@
-from logreg_model import NGramsClassifier
+from ngram_model import NGramsClassifier
 import time
 import configparser
 from bert_model import TransformerLanguageDetection
@@ -10,15 +10,14 @@ def main():
     start_time = time.time()
     config = configparser.ConfigParser()
     config.read('scripts/config.ini')
-    if config['PIPELINE']['mode'] == 'LOGREG':
+    train_set = WILI2018Dataset("train")
+    test_set = WILI2018Dataset("test")
+    if config['PIPELINE']['mode'] == 'NGRAM':
         classifier = NGramsClassifier()
-        classifier.train()
-        predictions = classifier.predict()
-        f1_score = classifier.f1_score(predictions)
+        classifier.train(list(train_set))
+        f1_score = classifier.test(list(test_set))
         print("f1 score on test dataset", f1_score)
     elif config['PIPELINE']['mode'] == 'BERT':
-        train_set = WILI2018Dataset("train")
-        test_set = WILI2018Dataset("test")
         classifier = TransformerLanguageDetection(device=config['BERT']['device'])
         classifier.train(train_set, batch_size=int(config['BERT']['batch_size']),
                          epochs=int(config['BERT']['epochs']))

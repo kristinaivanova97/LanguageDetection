@@ -8,6 +8,7 @@ from enum import Enum
 from typing import Optional
 from pathlib import Path
 from datetime import datetime
+from typing import List, Optional, Dict, Union
 import os
 
 import initializer
@@ -39,7 +40,7 @@ class TransformerLanguageDetection:
 
         self.metric_score_name = metric_score_name
         self.metric = Metric(metric_score_name)
-        self.model = torch.load(load_checkpoint_path) if load_checkpoint_path else self.model
+        self.model = torch.load(load_checkpoint_path, map_location=torch.device('cpu')) if load_checkpoint_path else self.model
 
     def fit(self, train_loader):
         self.model.train()
@@ -181,10 +182,10 @@ class TransformerLanguageDetection:
         test_score = np.mean(scores).item()
         print(f'Test {self.metric_score_name}-score {test_score}')
 
-    def predict(self, sentence, threshold: float = 0.5):
+    def predict(self, sentences, threshold: float = 0.1) -> Dict:
         self.model.eval()
         encoded_sent = self.tokenizer(
-            sentence,
+            sentences,
             truncation=True,
             padding=True,
             return_tensors='pt',
@@ -195,11 +196,13 @@ class TransformerLanguageDetection:
             encoded_sent['attention_mask'].to(self.device),
             labels=None
         )
-        predictions = output.logits.detach()
+        predictions = torch.nn.functional.softmax(output.logits, dim=1)
         mask = torch.ones(predictions.size()[0])
         mask = 1 - mask.diag()
         sim_vec = torch.nonzero((predictions >= threshold) * mask)
-        labels = [(lambda ids: self.get_id_func(ids[1]))(ids) for ids in sim_vec]
+        labels = {(lambda ids: initializer.languages_set[ids[1]])(ids):
+                      (sentences[ids[0].item()], predictions[ids[0], ids[1]]) for ids in sim_vec}
+
         return labels
 
     def save_chekpoints(self) -> None:

@@ -30,9 +30,9 @@ class NGramsClassifier:
             f"{Path(__file__).resolve().stem}_{start_time}.joblib"
         )
 
-    def training(self, train_dataset: List[Dict[str, Union[str, int]]]) -> None:
+    def train(self, train_dataset: List[Dict[str, Union[str, int]]]) -> None:
         x_train, y_train = self.get_right_format_dataset(train_dataset)
-        vectorizer = TfidfVectorizer(ngram_range=(1,5), analyzer='char')
+        vectorizer = TfidfVectorizer(ngram_range=(1, 5), analyzer='char')
 
         self.model = pipeline.Pipeline([
             ('vectorizer', vectorizer),
@@ -51,13 +51,13 @@ class NGramsClassifier:
     def predict(self, texts: List[str]) -> List[int]:
         return self.model.predict(texts)
 
-    def predict_proba(self, texts: List[str], threshold: float = 0.5) -> List[int]:
+    def predict_proba(self, texts: List[str], threshold: float = 0.2) -> List[dict]:
         predictions = self.model.predict_proba(texts)
-        result = [{self.model.classes_[i]: prob for i, prob in enumerate(prediction) if prob > threshold}
+        result = [{initializer.id_to_lang_dict[self.model.classes_[i]]: prob for i, prob in enumerate(prediction) if prob > threshold}
                   for prediction in predictions]
         return result
 
-    def testing(self, test_dataset: List[Dict[str, Union[str, int]]]) -> float:
+    def test(self, test_dataset: List[Dict[str, Union[str, int]]]) -> float:
         x_test, y_test = self.get_right_format_dataset(test_dataset)
         predicted_labels = self.predict(x_test)
         return self.metric(y_test, predicted_labels)

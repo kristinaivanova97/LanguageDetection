@@ -1,5 +1,5 @@
 from bert_model import TransformerLanguageDetection
-from logreg_model import NGramsClassifier
+from ngram_model import NGramsClassifier
 import json
 import argparse
 
@@ -14,7 +14,7 @@ def main(model_name, path_file=None, write_from_terminal: bool = True):
     #             text_data.append(line.split('\n')[0])
     if write_from_terminal:
         text = input("Предложение: ")
-    if model_name == 'LOGREG':
+    if model_name == 'NGRAM':
         classifier = NGramsClassifier()
         answer = classifier.predict_proba(text)
     elif model_name == 'BERT':

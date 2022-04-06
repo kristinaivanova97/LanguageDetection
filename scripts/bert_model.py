@@ -197,11 +197,14 @@ class TransformerLanguageDetection:
             labels=None
         )
         predictions = torch.nn.functional.softmax(output.logits, dim=1)
-        mask = torch.ones(predictions.size()[0])
-        mask = 1 - mask.diag()
+        if predictions.size()[0] > 1:
+            mask = torch.ones(predictions.size()[0])
+            mask = 1 - mask.diag()
+        else:
+            mask = torch.tensor([[1.]])
         sim_vec = torch.nonzero((predictions >= threshold) * mask)
         labels = {(lambda ids: initializer.languages_set[ids[1]])(ids):
-                      (sentences[ids[0].item()], predictions[ids[0], ids[1]]) for ids in sim_vec}
+                      (sentences[ids[0].item()], predictions[ids[0], ids[1]].item()) for ids in sim_vec}
 
         return labels
 
